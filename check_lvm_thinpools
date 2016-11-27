@@ -6,6 +6,7 @@ my $warn = 92.0;
 my $crit = 96.0;
 
 sub get_thinpools {
+  $ENV{'LC_ALL'} = 'C';  # Set locale for lvs call
   my @lvsoutput = `lvs --noheadings --separator : -o lv_attr,lv_name,data_percent,metadata_percent`;
   my @thinpools;
 
