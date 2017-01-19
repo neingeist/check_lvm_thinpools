@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use Getopt::Long;
 
 my $warn = 92.0;
 my $crit = 96.0;
@@ -74,12 +75,22 @@ sub aggregate_errors {
   return;
 }
 
+
+my $no_thinpools_ok = 0;
+GetOptions("no-thinpools-ok"  => \$no_thinpools_ok)
+  or die("Error in command line arguments\n");
+
 my @thinpools = get_thinpools();
 
 # No thinpool found?
 if (scalar @thinpools == 0) {
-  print "UNKNOWN: No thinpools found.\n";
-  exit 3;
+  if ($no_thinpools_ok == 1) {
+    print "OK: No thinpools found.\n";
+    exit 0;
+  } else {
+    print "UNKNOWN: No thinpools found.\n";
+    exit 3;
+  }
 } else {
   check_thinpools();
   aggregate_errors();
