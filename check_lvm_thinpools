@@ -77,8 +77,12 @@ sub aggregate_errors {
 
 
 my $no_thinpools_ok = 0;
-GetOptions("no-thinpools-ok"  => \$no_thinpools_ok)
-  or die("Error in command line arguments\n");
+Getopt::Long::Configure('bundling');
+GetOptions
+    ("no-thinpools-ok"  => \$no_thinpools_ok,
+     "w=f" => \$warn, "warning=f" => \$warn,
+     "c=f" => \$crit, "critical=f" => \$crit)
+    or die("Error in command line arguments\n");
 
 my @thinpools = get_thinpools();
 
