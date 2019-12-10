@@ -8,7 +8,7 @@ my $crit = 96.0;
 
 sub get_thinpools {
   $ENV{'LC_ALL'} = 'C';  # Set locale for lvs call
-  my @lvsoutput = `lvs --noheadings --separator : -o lv_attr,lv_name,data_percent,metadata_percent`;
+  my @lvsoutput = `lvs --noheadings --separator : --select 'lv_attr =~ ^t' -o lv_attr,lv_name,data_percent,metadata_percent`;
   my @thinpools;
 
   for my $lvsline (@lvsoutput) {
@@ -20,9 +20,7 @@ sub get_thinpools {
         'metadata_percent' => $4,
       };
 
-      if ($lv->{lv_attr} =~ m#^t#x) {
-        push @thinpools, $lv;
-      }
+      push @thinpools, $lv;
     }
   }
 
