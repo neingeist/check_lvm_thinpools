@@ -8,16 +8,17 @@ my $crit = 96.0;
 
 sub get_thinpools {
   $ENV{'LC_ALL'} = 'C';  # Set locale for lvs call
-  my @lvsoutput = `lvs --noheadings --separator : --select 'lv_attr =~ ^t' -o lv_attr,lv_name,data_percent,metadata_percent`;
+  my @lvsoutput = `lvs --noheadings --separator : --select 'lv_attr =~ ^t' -o lv_attr,lv_name,vg_name,data_percent,metadata_percent`;
   my @thinpools;
 
   for my $lvsline (@lvsoutput) {
-    if ($lvsline =~ m#^(?:\s+)?(.*):(.*):(.*):(.*)#x) {
+    if ($lvsline =~ m#^(?:\s+)?(.*):(.*):(.*):(.*):(.*)#x) {
       my $lv = {
         'lv_attr'          => $1,
         'lv_name'          => $2,
-        'data_percent'     => $3,
-        'metadata_percent' => $4,
+        'vg_name'          => $3,
+        'data_percent'     => $4,
+        'metadata_percent' => $5,
       };
 
       push @thinpools, $lv;
@@ -31,16 +32,16 @@ sub check_thinpools {
   for my $thinpool (get_thinpools()) {
     # Check metadata usage
     if ($thinpool->{metadata_percent} > $crit) {
-      add_error(2, "CRITICAL: Meta% of $thinpool->{lv_name} is $thinpool->{metadata_percent}")
+      add_error(2, "CRITICAL: Meta% of $thinpool->{vg_name}/$thinpool->{lv_name} is $thinpool->{metadata_percent}")
     } elsif ($thinpool->{metadata_percent} > $warn) {
-      add_error(1, "WARNING: Meta% of $thinpool->{lv_name} is $thinpool->{metadata_percent}")
+      add_error(1, "WARNING: Meta% of $thinpool->{vg_name}/$thinpool->{lv_name} is $thinpool->{metadata_percent}")
     }
 
     # Check data usage
     if ($thinpool->{data_percent} > $crit) {
-      add_error(2, "CRITICAL: Data% of $thinpool->{lv_name} is $thinpool->{data_percent}")
+      add_error(2, "CRITICAL: Data% of $thinpool->{vg_name}/$thinpool->{lv_name} is $thinpool->{data_percent}")
     } elsif ($thinpool->{data_percent} > $warn) {
-      add_error(1, "WARNING: Data% of $thinpool->{lv_name} is $thinpool->{data_percent}")
+      add_error(1, "WARNING: Data% of $thinpool->{vg_name}/$thinpool->{lv_name} is $thinpool->{data_percent}")
     }
   }
 
