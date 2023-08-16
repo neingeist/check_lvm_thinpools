@@ -32,7 +32,7 @@ sub get_thinpools {
 sub check_thinpools {
   for my $thinpool (get_thinpools()) {
     $perfdata .= $thinpool->{lv_name} . '-data_percent=' . $thinpool->{data_percent} . ";$warn;$crit; ";
-    $perfdata .= $thinpool->{lv_name} . '-metadata_percent=' . $thinpool->{metadata_percent} . ";$warn;$crit;";
+    $perfdata .= $thinpool->{lv_name} . '-metadata_percent=' . $thinpool->{metadata_percent} . ";$warn;$crit; ";
 
     # Check metadata usage
     if ($thinpool->{metadata_percent} > $crit) {
