@@ -5,6 +5,7 @@ use Getopt::Long;
 
 my $warn = 92.0;
 my $crit = 96.0;
+my $perfdata;
 
 sub get_thinpools {
   $ENV{'LC_ALL'} = 'C';  # Set locale for lvs call
@@ -30,6 +31,9 @@ sub get_thinpools {
 
 sub check_thinpools {
   for my $thinpool (get_thinpools()) {
+    $perfdata .= $thinpool->{lv_name} . '-data_percent=' . $thinpool->{data_percent} . ";$warn;$crit; ";
+    $perfdata .= $thinpool->{lv_name} . '-metadata_percent=' . $thinpool->{metadata_percent} . ";$warn;$crit;";
+
     # Check metadata usage
     if ($thinpool->{metadata_percent} > $crit) {
       add_error(2, "CRITICAL: Meta% of $thinpool->{vg_name}/$thinpool->{lv_name} is $thinpool->{metadata_percent}")
@@ -66,7 +70,7 @@ sub aggregate_errors {
   my @sorted_errors = sort { $b->{exit_code} cmp $a->{exit_code} } @errors;
   if (scalar @sorted_errors != 0) {
     for my $error (@sorted_errors) {
-      print $error->{message}, "\n";
+      print $error->{message}, '|', $perfdata, "\n";
     }
     exit $sorted_errors[0]->{exit_code};
   }
@@ -99,5 +103,5 @@ if (scalar @thinpools == 0) {
   aggregate_errors();
 }
 
-print "OK - All thinpools OK\n";
+print "OK - All thinpools OK|$perfdata\n";
 exit 0;
